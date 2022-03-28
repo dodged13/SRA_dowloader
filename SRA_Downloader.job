@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH -J HUVEC   # Job Name
+#SBATCH -N 1                      # Number of  Nodes to use
+#SBATCH -n 28                     # Number of CPUs
+#SBATCH -o HUVEC.out           # Output file name
+#SBATCH -e HUVEC.err           # Error file name
+#SBATCH -p compute                # Partition to run on
+#SBATCH --exclusive               # Request exclusive access to a node (all 28 cores, 128GB of RAM)
+#SBATCH -t 48:00:00
+
+
+
+for i in $(cat SRX_list.txt); 
+do mkdir $i
+esearch -db sra -query $i  | efetch -format runinfo | cut -d ',' -f 1 | grep SRR > $i/$i\_list.txt 
+for x in $(cat /$i/$i\_list.txt);
+do fastq-dump --outdir /HUVEC_fastq/$x $x
+STAR --runThreadN 6 --runMode alignReads \ 
+--genomeDir /home/591608/DanioAssembly --readFilesIn /home/591608/$i/$x\_1.fastq,/home/591608/$i/$x\_2.fastq  --quantMode TranscriptomeSAM GeneCounts \
+--outFileNamePrefix $i/. \ --outSAMtype BAM SortedByCoordinate \
+--outSAMunmapped None \
+--outSAMattributes Standard; done; done
