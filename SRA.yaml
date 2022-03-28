@@ -1,0 +1,9 @@
+name: SRA
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - entrez-direct=16.2=he881be0_0
+  - sra-tools=2.8.0=0
+prefix: /home/591608/.conda/envs/SRA
+
